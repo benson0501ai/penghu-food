@@ -127,7 +127,7 @@ th{background:#f8fafc;text-align:left;font-weight:800;white-space:nowrap}
 
 }
 
-/* 2026-09 mobile dropdown stacking fix */
+/* old mobile stacking patch superseded by v1.2 */
 @media(max-width:720px){
   .toolbar{
     position:relative!important;
@@ -159,6 +159,69 @@ th{background:#f8fafc;text-align:left;font-weight:800;white-space:nowrap}
   }
   .sticky-group{z-index:100!important;}
   #backTop{z-index:900!important;}
+}
+
+
+/* v1.2 — mobile filter menu definitive overlay fix */
+@media(max-width:720px){
+  body.menu-open{
+    overflow:hidden!important;
+  }
+
+  .toolbar{
+    position:relative!important;
+    z-index:1000!important;
+    overflow:visible!important;
+    isolation:auto!important;
+  }
+
+  .filters,
+  .multi{
+    position:static!important;
+    z-index:auto!important;
+    overflow:visible!important;
+  }
+
+  .menu{
+    display:none!important;
+    position:fixed!important;
+    z-index:2147483647!important;
+
+    /* Center the menu in the viewport, independent of the toolbar/table */
+    top:50%!important;
+    left:50%!important;
+    right:auto!important;
+    bottom:auto!important;
+    transform:translate(-50%,-50%)!important;
+
+    width:calc(100vw - 28px)!important;
+    max-width:560px!important;
+    min-width:0!important;
+    max-height:72vh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch;
+
+    background:#fff!important;
+    border:1px solid #cbd5e1!important;
+    border-radius:16px!important;
+    box-shadow:0 20px 60px rgba(15,23,42,.35)!important;
+    padding:12px!important;
+  }
+
+  .menu.open{
+    display:block!important;
+  }
+
+  /* Nothing in the food table may cover an open filter menu */
+  .section,
+  .sticky-group,
+  .head-wrap,
+  .body-wrap,
+  #myCard,
+  #backTop{
+    z-index:auto!important;
+  }
 }
 </style>
 </head>
@@ -976,6 +1039,14 @@ if(last){
 const bt=$("#backTop");window.addEventListener("scroll",()=>bt.classList.toggle("show",window.scrollY>500),{passive:true});bt.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
 syncHeaders();applyFilters();syncChecks();renderMine();
 })();
+
+
+/* v1.2 mobile menu body lock */
+document.addEventListener("click", function(){
+  setTimeout(function(){
+    document.body.classList.toggle("menu-open", !!document.querySelector(".menu.open"));
+  }, 0);
+}, true);
 </script>
 </body>
 </html>
