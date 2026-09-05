@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<title>澎湖美食清單</title>
+<meta content="澎湖美食清單：馬公、湖西、白沙、西嶼、離島、伴手禮與各類在地美食。" name="description"/>
+<meta content="澎湖美食清單" property="og:title"/>
+<meta content="73 家澎湖美食｜可複選篩選、勾選與儲存個人清單" property="og:description"/>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#1f2937;--muted:#64748b;--line:#dbe3ee;--brand:#0f766e;--sticky-top:4px;--font:14px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;font-size:var(--font)}
+.wrap{max-width:1500px;margin:auto;padding:12px}
+.header,.toolbar,#myCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+.header h1{margin:0 0 6px;font-size:28px}
+.header p,.small{color:var(--muted)}
+.toolbar{position:relative;z-index:1000;overflow:visible}
+.region-buttons,.filters,.profile-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.region-buttons{margin-bottom:10px}
+button,input{font:inherit}
+button{border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer}
+button.active{font-weight:800;box-shadow:0 0 0 2px rgba(15,118,110,.15)}
+.region-buttons button[data-region-filter="北島"]{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.region-buttons button[data-region-filter="西北"]{background:#dcfce7;color:#15803d;border-color:#86efac}
+.region-buttons button[data-region-filter="中島"]{background:#fef3c7;color:#a16207;border-color:#fcd34d}
+.region-buttons button[data-region-filter="中南"]{background:#ffedd5;color:#c2410c;border-color:#fdba74}
+.region-buttons button[data-region-filter="東島"]{background:#ede0d4;color:#7c2d12;border-color:#c7a17a}
+.region-buttons button[data-region-filter="南島"]{background:#ede9fe;color:#7e22ce;border-color:#c4b5fd}
+.region-buttons button[data-region-filter="全部"]{background:#e2e8f0;color:#334155;border-color:#94a3b8}
+.region-buttons button:not(.active){opacity:.82}
+.region-buttons button.active{opacity:1;box-shadow:0 0 0 2px rgba(15,118,110,.18),0 2px 8px rgba(15,23,42,.08)}
+body.all-regions .region-buttons button[data-region-filter]:not([data-region-filter="全部"]){opacity:1}
+
+.region-buttons button.active{
+  opacity:1!important;
+  font-weight:900!important;
+  outline:3px solid #0f172a;
+  outline-offset:2px;
+  transform:translateY(-1px);
+  box-shadow:0 4px 14px rgba(15,23,42,.18)!important;
+}
+.region-buttons button.active::before{content:"✓ ";font-weight:1000}
+.region-buttons button[data-region-filter="全部"].active{background:#334155!important;color:#fff!important;border-color:#0f172a!important}
+.region-buttons button[data-region-filter="北島"].active{background:#2563eb!important;color:#fff!important;border-color:#1d4ed8!important}
+.region-buttons button[data-region-filter="西北"].active{background:#16a34a!important;color:#fff!important;border-color:#15803d!important}
+.region-buttons button[data-region-filter="中島"].active{background:#d97706!important;color:#fff!important;border-color:#a16207!important}
+.region-buttons button[data-region-filter="中南"].active{background:#ea580c!important;color:#fff!important;border-color:#c2410c!important}
+.region-buttons button[data-region-filter="東島"].active{background:#92400e!important;color:#fff!important;border-color:#7c2d12!important}
+.region-buttons button[data-region-filter="南島"].active{background:#7e22ce!important;color:#fff!important;border-color:#6b21a8!important}
+
+.region-buttons button.active{
+  border-width:3px!important;
+  filter:saturate(1.2) contrast(1.05);
+}
+
+
+
+.search{min-width:210px;padding:8px 10px;border:1px solid #cbd5e1;border-radius:10px}
+.saved-select{min-width:180px;background:#fff}
+.multi{position:relative;z-index:1100}
+.multi>button{min-width:108px;text-align:left}
+.menu{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:5000;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.18);padding:8px;min-width:240px;max-height:320px;overflow:auto}
+.menu.open{display:block}
+.menu label{display:flex;gap:8px;align-items:flex-start;padding:7px;border-radius:8px;cursor:pointer;white-space:normal}
+.menu label:hover{background:#f8fafc}
+.section{position:relative;margin:18px 0 26px}
+.sticky-group{position:sticky;top:var(--sticky-top);z-index:100;background:var(--bg)}
+.section h2{margin:0;padding:10px 12px;border-radius:12px 12px 0 0;font-size:20px}
+.count{font-size:.75em;opacity:.72}
+.head-wrap{overflow:hidden;border:1px solid var(--line);border-top:0;background:#f8fafc}
+.head-track{width:1190px;will-change:transform}
+.body-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;background:#fff}
+table{border-collapse:collapse;table-layout:fixed;width:1190px;min-width:1190px}
+col.c1{width:44px} col.c2{width:48px} col.c3{width:130px} col.c4{width:210px}
+col.c5{width:52px} col.c6{width:92px} col.c7{width:88px} col.c8{width:115px}
+col.c9{width:100px} col.c10{width:191px} col.c11{width:90px}
+th,td{padding:8px 7px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{background:#f8fafc;text-align:left;font-weight:800;white-space:nowrap}
+.center{text-align:center}
+.wrap3{white-space:normal;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow-wrap:anywhere;word-break:break-word;line-height:1.35}
+.name{font-weight:800} .zh{display:block;color:#0f766e;font-weight:700;margin-top:2px}
+.note{font-size:.92em;color:#475569}
+.tier{font-weight:900} .tier-Splus{color:#b91c1c} .tier-S{color:#b45309} .tier-A{color:#047857} .tier-B{color:#475569}
+.google{color:#0369a1;text-decoration:none;font-weight:700;white-space:nowrap}
+.mapnav{display:inline-block;background:#0f766e;color:#fff;text-decoration:none;font-weight:800;border-radius:9px;padding:6px 8px;white-space:nowrap}
+.mapnav:hover{filter:brightness(.95)}
+.mapnav::before{content:"📍 ";font-size:.95em}
+.no-rating{color:#9f1239;font-weight:800;white-space:nowrap}
+.food-row.chosen td{background:#d1fae5 !important}
+.food-row.hidden{display:none}
+.section.hidden{display:none}
+.section.north h2{background:#dbeafe;color:#1d4ed8}
+.section.northwest h2{background:#dcfce7;color:#15803d}
+.section.central h2{background:#fef3c7;color:#a16207}
+.section.midsouth h2{background:#ffedd5;color:#c2410c}
+.section.east h2{background:#ede0d4;color:#7c2d12}
+.section.south h2{background:#ede9fe;color:#7e22ce}
+.section.north tbody tr:nth-child(odd) td{background:#eaf2ff}
+.section.northwest tbody tr:nth-child(odd) td{background:#edf8f0}
+.section.central tbody tr:nth-child(odd) td{background:#fff8dc}
+.section.midsouth tbody tr:nth-child(odd) td{background:#fff1e5}
+.section.east tbody tr:nth-child(odd) td{background:#f7efe7}
+.section.south tbody tr:nth-child(odd) td{background:#f2ecff}
+
+
+#myList .sticky-group{position:relative;top:auto}
+#backTop{position:fixed;right:16px;bottom:16px;width:48px;height:48px;border-radius:50%;background:#0f766e;color:#fff;font-size:22px;display:none;align-items:center;justify-content:center;z-index:999}
+#backTop.show{display:flex}
+@media(max-width:720px){
+  :root{--font:12px;--sticky-top:calc(env(safe-area-inset-top,0px) + 4px)}
+  .wrap{padding:8px}
+  .header h1{font-size:20px}
+  .toolbar{padding:10px}
+  .search{min-width:150px;flex:1}
+  .section h2{font-size:17px}
+  .head-track,table{width:1070px;min-width:1070px}
+  col.c1{width:42px} col.c2{width:44px} col.c3{width:115px} col.c4{width:185px}
+  col.c5{width:48px} col.c6{width:84px} col.c7{width:82px} col.c8{width:106px}
+  col.c9{width:92px} col.c10{width:152px} col.c11{width:90px}
+  th,td{padding:7px 6px}
+  .menu{position:fixed;left:12px;right:12px;top:auto;bottom:12px;min-width:0;max-height:58vh;z-index:9999}
+
+  .saved-select{min-width:150px;max-width:240px}
+
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="header">
+<h1>🍴 澎湖美食清單</h1>
+<p>澎湖美食資料庫｜早餐・小吃・海鮮・咖啡・甜點・冰品・伴手禮｜目前收錄 <b>73</b> 個候選項目</p>
+</div>
+<div id="myCard">
+<h2>📌 我的清單</h2>
+<div class="profile-actions">
+<input class="search" id="profile" placeholder="例如：北島、媽媽喜歡、老婆喜歡"/>
+<select aria-label="已儲存清單" class="search saved-select" id="savedProfiles">
+<option value="">已儲存清單</option>
+</select>
+<button id="saveMine">儲存我的清單</button>
+<button id="loadMine">讀取此使用者</button>
+<button id="copyMine">複製我的清單</button>
+<button id="clearMine">清空目前勾選</button>
+</div>
+<div id="myList"><p class="small">尚未勾選店家。</p></div>
+</div>
+<div class="toolbar">
+<div class="region-buttons" id="regionButtons">
+<button class="active" data-region-filter="全部">全部</button>
+<button data-region-filter="北島">馬公市區</button>
+<button data-region-filter="西北">馬公南環</button>
+<button data-region-filter="中島">湖西</button>
+<button data-region-filter="中南">白沙</button>
+<button data-region-filter="東島">西嶼</button>
+<button data-region-filter="南島">離島／伴手禮</button>
+</div>
+<div class="filters">
+<div class="multi"><button data-menu="typeMenu" type="button">類型：全部</button><div class="menu" id="typeMenu"><label><input type="checkbox" value="仙人掌冰／甜點"/> 仙人掌冰／甜點</label><label><input type="checkbox" value="仙人掌冰／飲料"/> 仙人掌冰／飲料</label><label><input type="checkbox" value="仙人掌汁／飲料"/> 仙人掌汁／飲料</label><label><input type="checkbox" value="仙草／冰品"/> 仙草／冰品</label><label><input type="checkbox" value="仙草／甜點"/> 仙草／甜點</label><label><input type="checkbox" value="冰品／甜點"/> 冰品／甜點</label><label><input type="checkbox" value="刀削麵／麵食"/> 刀削麵／麵食</label><label><input type="checkbox" value="古早味／伴手禮"/> 古早味／伴手禮</label><label><input type="checkbox" value="咖啡／景觀"/> 咖啡／景觀</label><label><input type="checkbox" value="咖啡／輕食"/> 咖啡／輕食</label><label><input type="checkbox" value="土豆仁粿／甜點"/> 土豆仁粿／甜點</label><label><input type="checkbox" value="小吃／香腸"/> 小吃／香腸</label><label><input type="checkbox" value="小管麵線／海鮮"/> 小管麵線／海鮮</label><label><input type="checkbox" value="早餐／刈包"/> 早餐／刈包</label><label><input type="checkbox" value="早餐／小吃"/> 早餐／小吃</label><label><input type="checkbox" value="早餐／燒餅"/> 早餐／燒餅</label><label><input type="checkbox" value="早餐／牛雜湯"/> 早餐／牛雜湯</label><label><input type="checkbox" value="早餐／豆漿"/> 早餐／豆漿</label><label><input type="checkbox" value="早餐／飯糰"/> 早餐／飯糰</label><label><input type="checkbox" value="杏仁茶／甜點"/> 杏仁茶／甜點</label><label><input type="checkbox" value="海鮮料理"/> 海鮮料理</label><label><input type="checkbox" value="海鮮粥／海鮮"/> 海鮮粥／海鮮</label><label><input type="checkbox" value="海鮮／熱炒"/> 海鮮／熱炒</label><label><input type="checkbox" value="澎湖小吃／海鮮"/> 澎湖小吃／海鮮</label><label><input type="checkbox" value="炸棗／糕餅"/> 炸棗／糕餅</label><label><input type="checkbox" value="炸物／雞排"/> 炸物／雞排</label><label><input type="checkbox" value="炸粿／小吃"/> 炸粿／小吃</label><label><input type="checkbox" value="炸粿／炸物"/> 炸粿／炸物</label><label><input type="checkbox" value="燒烤／宵夜"/> 燒烤／宵夜</label><label><input type="checkbox" value="燒肉飯／小吃"/> 燒肉飯／小吃</label><label><input type="checkbox" value="牛肉麵／麵食"/> 牛肉麵／麵食</label><label><input type="checkbox" value="特色小吃"/> 特色小吃</label><label><input type="checkbox" value="糕餅／伴手禮"/> 糕餅／伴手禮</label><label><input type="checkbox" value="糕餅／海味伴手禮"/> 糕餅／海味伴手禮</label><label><input type="checkbox" value="義式／餐廳"/> 義式／餐廳</label><label><input type="checkbox" value="肉圓／小吃"/> 肉圓／小吃</label><label><input type="checkbox" value="肉粽／麵食"/> 肉粽／麵食</label><label><input type="checkbox" value="胡椒餅／小吃"/> 胡椒餅／小吃</label><label><input type="checkbox" value="花生酥／伴手禮"/> 花生酥／伴手禮</label><label><input type="checkbox" value="蔥油餅／小吃"/> 蔥油餅／小吃</label><label><input type="checkbox" value="複合餐飲／咖啡"/> 複合餐飲／咖啡</label><label><input type="checkbox" value="豆花／甜點"/> 豆花／甜點</label><label><input type="checkbox" value="雞蛋糕／甜點"/> 雞蛋糕／甜點</label><label><input type="checkbox" value="飲料"/> 飲料</label><label><input type="checkbox" value="餐酒館／西式"/> 餐酒館／西式</label><label><input type="checkbox" value="香腸／小吃"/> 香腸／小吃</label><label><input type="checkbox" value="鹽酥雞／宵夜"/> 鹽酥雞／宵夜</label><label><input type="checkbox" value="麵食／小吃"/> 麵食／小吃</label><label><input type="checkbox" value="麵食／排骨麵"/> 麵食／排骨麵</label><label><input type="checkbox" value="黑糖糕／伴手禮"/> 黑糖糕／伴手禮</label></div></div>
+<div class="multi"><button data-menu="tierMenu" type="button">必吃：全部</button><div class="menu" id="tierMenu"><label><input type="checkbox" value="S+"/> S+</label>
+<label><input type="checkbox" value="S"/> S</label>
+<label><input type="checkbox" value="A"/> A</label>
+<label><input type="checkbox" value="B"/> B</label></div></div>
+<div class="multi"><button data-menu="ratingMenu" type="button">Google：全部</button><div class="menu" id="ratingMenu">
+<label><input type="checkbox" value="4.8"/> 4.8★以上</label>
+<label><input type="checkbox" value="4.7"/> 4.7★以上</label>
+<label><input type="checkbox" value="4.5"/> 4.5★以上</label>
+<label><input type="checkbox" value="有評分"/> 已有評分</label>
+<label><input type="checkbox" value="查無評論"/> 查無評論</label>
+</div></div>
+<input class="search" id="search" placeholder="搜尋店名、中文名、料理、區域…"/>
+<button id="reset">重設篩選</button>
+</div>
+<div class="small" style="margin-top:10px">可同時複選「類型／必吃／Google」。「導航」位於「備註」後方，點擊後直接開啟該店家的 Google Maps 地點頁面；接著由你自行按「路線」並選擇起點。</div>
+</div>
+<main id="main"><section class="section north" data-section-region="北島"><div class="sticky-group"><h2>馬公市區 <span class="count">38 家</span></h2><div class="head-wrap"><div class="head-track"><table><colgroup>
+<col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/>
+</colgroup><thead><tr><th>勾選</th><th>項次</th><th>區域</th><th>店家（原文＋中文）</th><th>必吃</th><th>Google</th><th>查看介紹</th><th>美食種類</th><th>適合時間</th><th>備註</th><th>導航</th></tr></thead></table></div></div></div>
+<div class="body-wrap"><table><colgroup><col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/></colgroup><tbody><tr class="food-row" data-id="1" data-rating="" data-region="北島" data-search="北新橋牛雜湯 北新橋牛雜湯 文康早餐街 早餐／牛雜湯 早餐 牛雜湯、肉包；文康早餐街代表名店。 馬公市區" data-tier="S+" data-type="早餐／牛雜湯">
+<td class="center"><input class="pick" data-id="1" type="checkbox"/></td>
+<td class="center">1</td><td><div class="wrap3">文康早餐街</div></td>
+<td><div class="wrap3"><span class="name">北新橋牛雜湯</span><span class="zh">北新橋牛雜湯</span></div></td>
+<td class="center tier tier-Splus">S+</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%8C%97%E6%96%B0%E6%A9%8B%E7%89%9B%E9%9B%9C%E6%B9%AF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>早餐／牛雜湯</td><td>早餐</td><td class="note">牛雜湯、肉包；文康早餐街代表名店。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%8C%97%E6%96%B0%E6%A9%8B%E7%89%9B%E9%9B%9C%E6%B9%AF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="2" data-rating="" data-region="北島" data-search="鐘記燒餅 鐘記燒餅 文康早餐街 早餐／燒餅 早餐 干貝蔥蛋油條燒餅、剝皮辣椒蔥蛋燒餅。 馬公市區" data-tier="S+" data-type="早餐／燒餅">
+<td class="center"><input class="pick" data-id="2" type="checkbox"/></td>
+<td class="center">2</td><td><div class="wrap3">文康早餐街</div></td>
+<td><div class="wrap3"><span class="name">鐘記燒餅</span><span class="zh">鐘記燒餅</span></div></td>
+<td class="center tier tier-Splus">S+</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%90%98%E8%A8%98%E7%87%92%E9%A4%85%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>早餐／燒餅</td><td>早餐</td><td class="note">干貝蔥蛋油條燒餅、剝皮辣椒蔥蛋燒餅。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%90%98%E8%A8%98%E7%87%92%E9%A4%85%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="3" data-rating="" data-region="北島" data-search="香亭土魠魚羹 香亭土魠魚羹 文康早餐街 早餐／小吃 早餐／早午餐 土魠魚羹、土魠魚米粉羹。 馬公市區" data-tier="S" data-type="早餐／小吃">
+<td class="center"><input class="pick" data-id="3" type="checkbox"/></td>
+<td class="center">3</td><td><div class="wrap3">文康早餐街</div></td>
+<td><div class="wrap3"><span class="name">香亭土魠魚羹</span><span class="zh">香亭土魠魚羹</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%A6%99%E4%BA%AD%E5%9C%9F%E9%AD%A0%E9%AD%9A%E7%BE%B9%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>早餐／小吃</td><td>早餐／早午餐</td><td class="note">土魠魚羹、土魠魚米粉羹。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%A6%99%E4%BA%AD%E5%9C%9F%E9%AD%A0%E9%AD%9A%E7%BE%B9%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="4" data-rating="" data-region="北島" data-search="二信飯糰 二信飯糰 文康早餐街 早餐／飯糰 早餐 白米、紫米飯糰；熱門外帶早餐。 馬公市區" data-tier="S" data-type="早餐／飯糰">
+<td class="center"><input class="pick" data-id="4" type="checkbox"/></td>
+<td class="center">4</td><td><div class="wrap3">文康早餐街</div></td>
+<td><div class="wrap3"><span class="name">二信飯糰</span><span class="zh">二信飯糰</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E4%BA%8C%E4%BF%A1%E9%A3%AF%E7%B3%B0%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>早餐／飯糰</td><td>早餐</td><td class="note">白米、紫米飯糰；熱門外帶早餐。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E4%BA%8C%E4%BF%A1%E9%A3%AF%E7%B3%B0%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="5" data-rating="" data-region="北島" data-search="益豐豆漿店 益豐豆漿店 文康早餐街 早餐／豆漿 早餐 豆漿、燒餅、蛋餅等傳統早餐。 馬公市區" data-tier="A" data-type="早餐／豆漿">
+<td class="center"><input class="pick" data-id="5" type="checkbox"/></td>
+<td class="center">5</td><td><div class="wrap3">文康早餐街</div></td>
+<td><div class="wrap3"><span class="name">益豐豆漿店</span><span class="zh">益豐豆漿店</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E7%9B%8A%E8%B1%90%E8%B1%86%E6%BC%BF%E5%BA%97%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>早餐／豆漿</td><td>早餐</td><td class="note">豆漿、燒餅、蛋餅等傳統早餐。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E7%9B%8A%E8%B1%90%E8%B1%86%E6%BC%BF%E5%BA%97%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="6" data-rating="" data-region="北島" data-search="原味漁村小吃 原味漁村小吃 中央老街 澎湖小吃／海鮮 午餐／晚餐 小管麵線、鮮蚵滷肉飯、海菜炒蛋。 馬公市區" data-tier="S+" data-type="澎湖小吃／海鮮">
+<td class="center"><input class="pick" data-id="6" type="checkbox"/></td>
+<td class="center">6</td><td><div class="wrap3">中央老街</div></td>
+<td><div class="wrap3"><span class="name">原味漁村小吃</span><span class="zh">原味漁村小吃</span></div></td>
+<td class="center tier tier-Splus">S+</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%8E%9F%E5%91%B3%E6%BC%81%E6%9D%91%E5%B0%8F%E5%90%83%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>澎湖小吃／海鮮</td><td>午餐／晚餐</td><td class="note">小管麵線、鮮蚵滷肉飯、海菜炒蛋。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%8E%9F%E5%91%B3%E6%BC%81%E6%9D%91%E5%B0%8F%E5%90%83%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="7" data-rating="" data-region="北島" data-search="馬路益燒肉飯 馬路益燒肉飯 市區 燒肉飯／小吃 午餐／晚餐 燒肉飯、花枝排。 馬公市區" data-tier="S" data-type="燒肉飯／小吃">
+<td class="center"><input class="pick" data-id="7" type="checkbox"/></td>
+<td class="center">7</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">馬路益燒肉飯</span><span class="zh">馬路益燒肉飯</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%A6%AC%E8%B7%AF%E7%9B%8A%E7%87%92%E8%82%89%E9%A3%AF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>燒肉飯／小吃</td><td>午餐／晚餐</td><td class="note">燒肉飯、花枝排。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%A6%AC%E8%B7%AF%E7%9B%8A%E7%87%92%E8%82%89%E9%A3%AF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="8" data-rating="" data-region="北島" data-search="玉冠嫩仙草 玉冠嫩仙草 市區 仙草／甜點 下午／晚間 嫩仙草、仙草冰；高人氣甜點。 馬公市區" data-tier="S" data-type="仙草／甜點">
+<td class="center"><input class="pick" data-id="8" type="checkbox"/></td>
+<td class="center">8</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">玉冠嫩仙草</span><span class="zh">玉冠嫩仙草</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E7%8E%89%E5%86%A0%E5%AB%A9%E4%BB%99%E8%8D%89%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>仙草／甜點</td><td>下午／晚間</td><td class="note">嫩仙草、仙草冰；高人氣甜點。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E7%8E%89%E5%86%A0%E5%AB%A9%E4%BB%99%E8%8D%89%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="9" data-rating="" data-region="北島" data-search="紫玉仙草 紫玉仙草 市區 仙草／甜點 下午／晚間 仙草甜品。 馬公市區" data-tier="A" data-type="仙草／甜點">
+<td class="center"><input class="pick" data-id="9" type="checkbox"/></td>
+<td class="center">9</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">紫玉仙草</span><span class="zh">紫玉仙草</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E7%B4%AB%E7%8E%89%E4%BB%99%E8%8D%89%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>仙草／甜點</td><td>下午／晚間</td><td class="note">仙草甜品。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E7%B4%AB%E7%8E%89%E4%BB%99%E8%8D%89%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="10" data-rating="" data-region="北島" data-search="三哥酒釀雞排 三哥酒釀雞排 市區 炸物／雞排 下午／晚間 酒釀雞排。 馬公市區" data-tier="A" data-type="炸物／雞排">
+<td class="center"><input class="pick" data-id="10" type="checkbox"/></td>
+<td class="center">10</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">三哥酒釀雞排</span><span class="zh">三哥酒釀雞排</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E4%B8%89%E5%93%A5%E9%85%92%E9%87%80%E9%9B%9E%E6%8E%92%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>炸物／雞排</td><td>下午／晚間</td><td class="note">酒釀雞排。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E4%B8%89%E5%93%A5%E9%85%92%E9%87%80%E9%9B%9E%E6%8E%92%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="11" data-rating="" data-region="北島" data-search="郵局口蔥油餅 郵局口蔥油餅 市區 蔥油餅／小吃 下午 老字號蔥油餅。 馬公市區" data-tier="A" data-type="蔥油餅／小吃">
+<td class="center"><input class="pick" data-id="11" type="checkbox"/></td>
+<td class="center">11</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">郵局口蔥油餅</span><span class="zh">郵局口蔥油餅</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%83%B5%E5%B1%80%E5%8F%A3%E8%94%A5%E6%B2%B9%E9%A4%85%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>蔥油餅／小吃</td><td>下午</td><td class="note">老字號蔥油餅。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%83%B5%E5%B1%80%E5%8F%A3%E8%94%A5%E6%B2%B9%E9%A4%85%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="12" data-rating="" data-region="北島" data-search="海城上湯鮮魚粥 海城上湯鮮魚粥 市區 海鮮粥／海鮮 午餐／晚餐 鮮魚粥、海鮮料理。 馬公市區" data-tier="A" data-type="海鮮粥／海鮮">
+<td class="center"><input class="pick" data-id="12" type="checkbox"/></td>
+<td class="center">12</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">海城上湯鮮魚粥</span><span class="zh">海城上湯鮮魚粥</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%B5%B7%E5%9F%8E%E4%B8%8A%E6%B9%AF%E9%AE%AE%E9%AD%9A%E7%B2%A5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>海鮮粥／海鮮</td><td>午餐／晚餐</td><td class="note">鮮魚粥、海鮮料理。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%B5%B7%E5%9F%8E%E4%B8%8A%E6%B9%AF%E9%AE%AE%E9%AD%9A%E7%B2%A5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="13" data-rating="" data-region="北島" data-search="富園小吃 富園小吃 市區 海鮮／熱炒 晚餐 當季海鮮、熱炒；適合多人。 馬公市區" data-tier="A" data-type="海鮮／熱炒">
+<td class="center"><input class="pick" data-id="13" type="checkbox"/></td>
+<td class="center">13</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">富園小吃</span><span class="zh">富園小吃</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%AF%8C%E5%9C%92%E5%B0%8F%E5%90%83%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>海鮮／熱炒</td><td>晚餐</td><td class="note">當季海鮮、熱炒；適合多人。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%AF%8C%E5%9C%92%E5%B0%8F%E5%90%83%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="14" data-rating="" data-region="北島" data-search="阿豹香腸攤 阿豹香腸攤 市區 香腸／小吃 下午／晚間 古早味香腸、黑輪等。 馬公市區" data-tier="A" data-type="香腸／小吃">
+<td class="center"><input class="pick" data-id="14" type="checkbox"/></td>
+<td class="center">14</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">阿豹香腸攤</span><span class="zh">阿豹香腸攤</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%98%BF%E8%B1%B9%E9%A6%99%E8%85%B8%E6%94%A4%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>香腸／小吃</td><td>下午／晚間</td><td class="note">古早味香腸、黑輪等。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%98%BF%E8%B1%B9%E9%A6%99%E8%85%B8%E6%94%A4%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="15" data-rating="" data-region="北島" data-search="讚哥燒肉飯 讚哥燒肉飯 市區 燒肉飯／小吃 午餐／晚餐 燒肉飯、炸物。 馬公市區" data-tier="A" data-type="燒肉飯／小吃">
+<td class="center"><input class="pick" data-id="15" type="checkbox"/></td>
+<td class="center">15</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">讚哥燒肉飯</span><span class="zh">讚哥燒肉飯</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E8%AE%9A%E5%93%A5%E7%87%92%E8%82%89%E9%A3%AF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>燒肉飯／小吃</td><td>午餐／晚餐</td><td class="note">燒肉飯、炸物。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E8%AE%9A%E5%93%A5%E7%87%92%E8%82%89%E9%A3%AF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="16" data-rating="" data-region="北島" data-search="嘉嘉炭烤 嘉嘉炭烤 市區 燒烤／宵夜 晚餐／宵夜 炭烤、宵夜。 馬公市區" data-tier="A" data-type="燒烤／宵夜">
+<td class="center"><input class="pick" data-id="16" type="checkbox"/></td>
+<td class="center">16</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">嘉嘉炭烤</span><span class="zh">嘉嘉炭烤</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%98%89%E5%98%89%E7%82%AD%E7%83%A4%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>燒烤／宵夜</td><td>晚餐／宵夜</td><td class="note">炭烤、宵夜。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%98%89%E5%98%89%E7%82%AD%E7%83%A4%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="17" data-rating="" data-region="北島" data-search="來福海鮮餐廳 來福海鮮餐廳 市區 海鮮料理 午餐／晚餐 多人海鮮正餐；點餐前確認時價。 馬公市區" data-tier="A" data-type="海鮮料理">
+<td class="center"><input class="pick" data-id="17" type="checkbox"/></td>
+<td class="center">17</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">來福海鮮餐廳</span><span class="zh">來福海鮮餐廳</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E4%BE%86%E7%A6%8F%E6%B5%B7%E9%AE%AE%E9%A4%90%E5%BB%B3%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>海鮮料理</td><td>午餐／晚餐</td><td class="note">多人海鮮正餐；點餐前確認時價。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E4%BE%86%E7%A6%8F%E6%B5%B7%E9%AE%AE%E9%A4%90%E5%BB%B3%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="18" data-rating="" data-region="北島" data-search="清香活海鮮 清香活海鮮 市區 海鮮料理 午餐／晚餐 活海鮮餐廳。 馬公市區" data-tier="A" data-type="海鮮料理">
+<td class="center"><input class="pick" data-id="18" type="checkbox"/></td>
+<td class="center">18</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">清香活海鮮</span><span class="zh">清香活海鮮</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%B8%85%E9%A6%99%E6%B4%BB%E6%B5%B7%E9%AE%AE%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>海鮮料理</td><td>午餐／晚餐</td><td class="note">活海鮮餐廳。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%B8%85%E9%A6%99%E6%B4%BB%E6%B5%B7%E9%AE%AE%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="19" data-rating="" data-region="北島" data-search="臨海樓海鮮餐廳 臨海樓海鮮餐廳 市區 海鮮料理 午餐／晚餐 多人聚餐型海鮮餐廳。 馬公市區" data-tier="A" data-type="海鮮料理">
+<td class="center"><input class="pick" data-id="19" type="checkbox"/></td>
+<td class="center">19</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">臨海樓海鮮餐廳</span><span class="zh">臨海樓海鮮餐廳</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E8%87%A8%E6%B5%B7%E6%A8%93%E6%B5%B7%E9%AE%AE%E9%A4%90%E5%BB%B3%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>海鮮料理</td><td>午餐／晚餐</td><td class="note">多人聚餐型海鮮餐廳。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E8%87%A8%E6%B5%B7%E6%A8%93%E6%B5%B7%E9%AE%AE%E9%A4%90%E5%BB%B3%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="20" data-rating="" data-region="北島" data-search="乾益堂藥膳蛋 乾益堂藥膳蛋 中央老街 特色小吃 下午／晚間 老街散步小吃。 馬公市區" data-tier="A" data-type="特色小吃">
+<td class="center"><input class="pick" data-id="20" type="checkbox"/></td>
+<td class="center">20</td><td><div class="wrap3">中央老街</div></td>
+<td><div class="wrap3"><span class="name">乾益堂藥膳蛋</span><span class="zh">乾益堂藥膳蛋</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E4%B9%BE%E7%9B%8A%E5%A0%82%E8%97%A5%E8%86%B3%E8%9B%8B%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>特色小吃</td><td>下午／晚間</td><td class="note">老街散步小吃。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E4%B9%BE%E7%9B%8A%E5%A0%82%E8%97%A5%E8%86%B3%E8%9B%8B%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="21" data-rating="" data-region="北島" data-search="劉正港檸檬汁 劉正港檸檬汁 市區 飲料 下午／晚間 人氣檸檬汁。 馬公市區" data-tier="A" data-type="飲料">
+<td class="center"><input class="pick" data-id="21" type="checkbox"/></td>
+<td class="center">21</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">劉正港檸檬汁</span><span class="zh">劉正港檸檬汁</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%8A%89%E6%AD%A3%E6%B8%AF%E6%AA%B8%E6%AA%AC%E6%B1%81%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>飲料</td><td>下午／晚間</td><td class="note">人氣檸檬汁。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%8A%89%E6%AD%A3%E6%B8%AF%E6%AA%B8%E6%AA%AC%E6%B1%81%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="22" data-rating="" data-region="北島" data-search="福台排骨麵 福台排骨麵 市區 麵食／排骨麵 午餐／晚餐 在地老店排骨麵。 馬公市區" data-tier="A" data-type="麵食／排骨麵">
+<td class="center"><input class="pick" data-id="22" type="checkbox"/></td>
+<td class="center">22</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">福台排骨麵</span><span class="zh">福台排骨麵</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E7%A6%8F%E5%8F%B0%E6%8E%92%E9%AA%A8%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>麵食／排骨麵</td><td>午餐／晚餐</td><td class="note">在地老店排骨麵。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E7%A6%8F%E5%8F%B0%E6%8E%92%E9%AA%A8%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="23" data-rating="" data-region="北島" data-search="老李胡椒餅 老李胡椒餅 市區 胡椒餅／小吃 下午 胡椒餅。 馬公市區" data-tier="A" data-type="胡椒餅／小吃">
+<td class="center"><input class="pick" data-id="23" type="checkbox"/></td>
+<td class="center">23</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">老李胡椒餅</span><span class="zh">老李胡椒餅</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E8%80%81%E6%9D%8E%E8%83%A1%E6%A4%92%E9%A4%85%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>胡椒餅／小吃</td><td>下午</td><td class="note">胡椒餅。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E8%80%81%E6%9D%8E%E8%83%A1%E6%A4%92%E9%A4%85%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="24" data-rating="" data-region="北島" data-search="憲作冰淇淋 憲作冰淇淋 市區 冰品／甜點 下午／晚間 特色冰淇淋。 馬公市區" data-tier="A" data-type="冰品／甜點">
+<td class="center"><input class="pick" data-id="24" type="checkbox"/></td>
+<td class="center">24</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">憲作冰淇淋</span><span class="zh">憲作冰淇淋</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%86%B2%E4%BD%9C%E5%86%B0%E6%B7%87%E6%B7%8B%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>冰品／甜點</td><td>下午／晚間</td><td class="note">特色冰淇淋。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%86%B2%E4%BD%9C%E5%86%B0%E6%B7%87%E6%B7%8B%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="25" data-rating="" data-region="北島" data-search="花媽大腸包小腸 花媽大腸包小腸 市區 小吃／香腸 下午／晚間 大腸包小腸。 馬公市區" data-tier="B" data-type="小吃／香腸">
+<td class="center"><input class="pick" data-id="25" type="checkbox"/></td>
+<td class="center">25</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">花媽大腸包小腸</span><span class="zh">花媽大腸包小腸</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E8%8A%B1%E5%AA%BD%E5%A4%A7%E8%85%B8%E5%8C%85%E5%B0%8F%E8%85%B8%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>小吃／香腸</td><td>下午／晚間</td><td class="note">大腸包小腸。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E8%8A%B1%E5%AA%BD%E5%A4%A7%E8%85%B8%E5%8C%85%E5%B0%8F%E8%85%B8%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="26" data-rating="" data-region="北島" data-search="建國炸粿 建國炸粿 市區 炸粿／小吃 下午 炸粿。 馬公市區" data-tier="A" data-type="炸粿／小吃">
+<td class="center"><input class="pick" data-id="26" type="checkbox"/></td>
+<td class="center">26</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">建國炸粿</span><span class="zh">建國炸粿</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%BB%BA%E5%9C%8B%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>炸粿／小吃</td><td>下午</td><td class="note">炸粿。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%BB%BA%E5%9C%8B%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="27" data-rating="" data-region="北島" data-search="赤崁炸粿 赤崁炸粿 市區 炸粿／小吃 下午 炸粿。 馬公市區" data-tier="A" data-type="炸粿／小吃">
+<td class="center"><input class="pick" data-id="27" type="checkbox"/></td>
+<td class="center">27</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">赤崁炸粿</span><span class="zh">赤崁炸粿</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E8%B5%A4%E5%B4%81%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>炸粿／小吃</td><td>下午</td><td class="note">炸粿。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E8%B5%A4%E5%B4%81%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="28" data-rating="" data-region="北島" data-search="藍媽媽仙草冰 藍媽媽仙草冰 市區 仙草／冰品 下午／晚間 仙草冰。 馬公市區" data-tier="A" data-type="仙草／冰品">
+<td class="center"><input class="pick" data-id="28" type="checkbox"/></td>
+<td class="center">28</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">藍媽媽仙草冰</span><span class="zh">藍媽媽仙草冰</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E8%97%8D%E5%AA%BD%E5%AA%BD%E4%BB%99%E8%8D%89%E5%86%B0%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>仙草／冰品</td><td>下午／晚間</td><td class="note">仙草冰。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E8%97%8D%E5%AA%BD%E5%AA%BD%E4%BB%99%E8%8D%89%E5%86%B0%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="29" data-rating="" data-region="北島" data-search="家竹黑砂糖冰 家竹黑砂糖冰 市區 冰品／甜點 下午／晚間 黑砂糖冰。 馬公市區" data-tier="A" data-type="冰品／甜點">
+<td class="center"><input class="pick" data-id="29" type="checkbox"/></td>
+<td class="center">29</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">家竹黑砂糖冰</span><span class="zh">家竹黑砂糖冰</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%AE%B6%E7%AB%B9%E9%BB%91%E7%A0%82%E7%B3%96%E5%86%B0%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>冰品／甜點</td><td>下午／晚間</td><td class="note">黑砂糖冰。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%AE%B6%E7%AB%B9%E9%BB%91%E7%A0%82%E7%B3%96%E5%86%B0%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="30" data-rating="" data-region="北島" data-search="麒麟麵店 麒麟麵店 市區 麵食／小吃 午餐／晚餐 在地麵食。 馬公市區" data-tier="B" data-type="麵食／小吃">
+<td class="center"><input class="pick" data-id="30" type="checkbox"/></td>
+<td class="center">30</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">麒麟麵店</span><span class="zh">麒麟麵店</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%BA%92%E9%BA%9F%E9%BA%B5%E5%BA%97%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>麵食／小吃</td><td>午餐／晚餐</td><td class="note">在地麵食。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%BA%92%E9%BA%9F%E9%BA%B5%E5%BA%97%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="31" data-rating="" data-region="北島" data-search="碼頭刀削麵 碼頭刀削麵 市區 刀削麵／麵食 午餐／晚餐 刀削麵。 馬公市區" data-tier="B" data-type="刀削麵／麵食">
+<td class="center"><input class="pick" data-id="31" type="checkbox"/></td>
+<td class="center">31</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">碼頭刀削麵</span><span class="zh">碼頭刀削麵</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E7%A2%BC%E9%A0%AD%E5%88%80%E5%89%8A%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>刀削麵／麵食</td><td>午餐／晚餐</td><td class="note">刀削麵。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E7%A2%BC%E9%A0%AD%E5%88%80%E5%89%8A%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="32" data-rating="" data-region="北島" data-search="漁港麵 漁港麵 市區 麵食／小吃 早餐／午餐 漁港周邊在地麵食。 馬公市區" data-tier="B" data-type="麵食／小吃">
+<td class="center"><input class="pick" data-id="32" type="checkbox"/></td>
+<td class="center">32</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">漁港麵</span><span class="zh">漁港麵</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%BC%81%E6%B8%AF%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>麵食／小吃</td><td>早餐／午餐</td><td class="note">漁港周邊在地麵食。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%BC%81%E6%B8%AF%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="33" data-rating="" data-region="北島" data-search="四季肉圓 四季肉圓 市區 肉圓／小吃 午餐／下午 肉圓。 馬公市區" data-tier="B" data-type="肉圓／小吃">
+<td class="center"><input class="pick" data-id="33" type="checkbox"/></td>
+<td class="center">33</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">四季肉圓</span><span class="zh">四季肉圓</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%9B%9B%E5%AD%A3%E8%82%89%E5%9C%93%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>肉圓／小吃</td><td>午餐／下午</td><td class="note">肉圓。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%9B%9B%E5%AD%A3%E8%82%89%E5%9C%93%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="34" data-rating="" data-region="北島" data-search="七里香鹽酥雞 七里香鹽酥雞 市區 鹽酥雞／宵夜 晚餐／宵夜 炸物、鹽酥雞。 馬公市區" data-tier="B" data-type="鹽酥雞／宵夜">
+<td class="center"><input class="pick" data-id="34" type="checkbox"/></td>
+<td class="center">34</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">七里香鹽酥雞</span><span class="zh">七里香鹽酥雞</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E4%B8%83%E9%87%8C%E9%A6%99%E9%B9%BD%E9%85%A5%E9%9B%9E%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>鹽酥雞／宵夜</td><td>晚餐／宵夜</td><td class="note">炸物、鹽酥雞。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E4%B8%83%E9%87%8C%E9%A6%99%E9%B9%BD%E9%85%A5%E9%9B%9E%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="35" data-rating="" data-region="北島" data-search="澎湖龜鮮奶雞蛋糕 澎湖龜鮮奶雞蛋糕 市區 雞蛋糕／甜點 下午／晚間 澎湖龜造型雞蛋糕。 馬公市區" data-tier="B" data-type="雞蛋糕／甜點">
+<td class="center"><input class="pick" data-id="35" type="checkbox"/></td>
+<td class="center">35</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">澎湖龜鮮奶雞蛋糕</span><span class="zh">澎湖龜鮮奶雞蛋糕</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%BE%8E%E6%B9%96%E9%BE%9C%E9%AE%AE%E5%A5%B6%E9%9B%9E%E8%9B%8B%E7%B3%95%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>雞蛋糕／甜點</td><td>下午／晚間</td><td class="note">澎湖龜造型雞蛋糕。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%BE%8E%E6%B9%96%E9%BE%9C%E9%AE%AE%E5%A5%B6%E9%9B%9E%E8%9B%8B%E7%B3%95%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="36" data-rating="" data-region="北島" data-search="chuju 雛菊餐桌 chuju 雛菊餐桌 市區 義式／餐廳 午餐／晚餐 義式料理、多人用餐備選。 馬公市區" data-tier="A" data-type="義式／餐廳">
+<td class="center"><input class="pick" data-id="36" type="checkbox"/></td>
+<td class="center">36</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">ChuJu 雛菊餐桌</span><span class="zh">ChuJu 雛菊餐桌</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=ChuJu%20%E9%9B%9B%E8%8F%8A%E9%A4%90%E6%A1%8C%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>義式／餐廳</td><td>午餐／晚餐</td><td class="note">義式料理、多人用餐備選。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=ChuJu%20%E9%9B%9B%E8%8F%8A%E9%A4%90%E6%A1%8C%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="37" data-rating="" data-region="北島" data-search="addict restaurant 癮餐廳 addict restaurant 癮餐廳 市區 餐酒館／西式 晚餐 餐酒館。 馬公市區" data-tier="A" data-type="餐酒館／西式">
+<td class="center"><input class="pick" data-id="37" type="checkbox"/></td>
+<td class="center">37</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">Addict Restaurant 癮餐廳</span><span class="zh">Addict Restaurant 癮餐廳</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=Addict%20Restaurant%20%E7%99%AE%E9%A4%90%E5%BB%B3%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>餐酒館／西式</td><td>晚餐</td><td class="note">餐酒館。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=Addict%20Restaurant%20%E7%99%AE%E9%A4%90%E5%BB%B3%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="38" data-rating="" data-region="北島" data-search="pier3 三號港 pier3 三號港 市區 複合餐飲／咖啡 午餐／下午／晚餐 室內休息、餐飲選擇多。 馬公市區" data-tier="B" data-type="複合餐飲／咖啡">
+<td class="center"><input class="pick" data-id="38" type="checkbox"/></td>
+<td class="center">38</td><td><div class="wrap3">市區</div></td>
+<td><div class="wrap3"><span class="name">Pier3 三號港</span><span class="zh">Pier3 三號港</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=Pier3%20%E4%B8%89%E8%99%9F%E6%B8%AF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>複合餐飲／咖啡</td><td>午餐／下午／晚餐</td><td class="note">室內休息、餐飲選擇多。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=Pier3%20%E4%B8%89%E8%99%9F%E6%B8%AF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr></tbody></table></div></section><section class="section northwest" data-section-region="西北"><div class="sticky-group"><h2>馬公南環 <span class="count">4 家</span></h2><div class="head-wrap"><div class="head-track"><table><colgroup>
+<col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/>
+</colgroup><thead><tr><th>勾選</th><th>項次</th><th>區域</th><th>店家（原文＋中文）</th><th>必吃</th><th>Google</th><th>查看介紹</th><th>美食種類</th><th>適合時間</th><th>備註</th><th>導航</th></tr></thead></table></div></div></div>
+<div class="body-wrap"><table><colgroup><col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/></colgroup><tbody><tr class="food-row" data-id="39" data-rating="" data-region="西北" data-search="山水牛肉麵 山水牛肉麵 山水 牛肉麵／麵食 午餐／晚餐 南環行程順路正餐。 馬公南環" data-tier="A" data-type="牛肉麵／麵食">
+<td class="center"><input class="pick" data-id="39" type="checkbox"/></td>
+<td class="center">39</td><td><div class="wrap3">山水</div></td>
+<td><div class="wrap3"><span class="name">山水牛肉麵</span><span class="zh">山水牛肉麵</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%B1%B1%E6%B0%B4%E7%89%9B%E8%82%89%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>牛肉麵／麵食</td><td>午餐／晚餐</td><td class="note">南環行程順路正餐。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%B1%B1%E6%B0%B4%E7%89%9B%E8%82%89%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="40" data-rating="" data-region="西北" data-search="鎖港牛肉麵 鎖港牛肉麵 鎖港 牛肉麵／麵食 午餐／晚餐 鎖港在地麵食。 馬公南環" data-tier="B" data-type="牛肉麵／麵食">
+<td class="center"><input class="pick" data-id="40" type="checkbox"/></td>
+<td class="center">40</td><td><div class="wrap3">鎖港</div></td>
+<td><div class="wrap3"><span class="name">鎖港牛肉麵</span><span class="zh">鎖港牛肉麵</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%8E%96%E6%B8%AF%E7%89%9B%E8%82%89%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>牛肉麵／麵食</td><td>午餐／晚餐</td><td class="note">鎖港在地麵食。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%8E%96%E6%B8%AF%E7%89%9B%E8%82%89%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="41" data-rating="" data-region="西北" data-search="阿東海鮮餐廳 阿東海鮮餐廳 鎖港 海鮮料理 午餐／晚餐 南環海鮮正餐備選。 馬公南環" data-tier="B" data-type="海鮮料理">
+<td class="center"><input class="pick" data-id="41" type="checkbox"/></td>
+<td class="center">41</td><td><div class="wrap3">鎖港</div></td>
+<td><div class="wrap3"><span class="name">阿東海鮮餐廳</span><span class="zh">阿東海鮮餐廳</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%98%BF%E6%9D%B1%E6%B5%B7%E9%AE%AE%E9%A4%90%E5%BB%B3%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>海鮮料理</td><td>午餐／晚餐</td><td class="note">南環海鮮正餐備選。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%98%BF%E6%9D%B1%E6%B5%B7%E9%AE%AE%E9%A4%90%E5%BB%B3%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="42" data-rating="" data-region="西北" data-search="山水30高地咖啡 山水30高地咖啡 山水 咖啡／景觀 下午 山水一帶休息備選。 馬公南環" data-tier="B" data-type="咖啡／景觀">
+<td class="center"><input class="pick" data-id="42" type="checkbox"/></td>
+<td class="center">42</td><td><div class="wrap3">山水</div></td>
+<td><div class="wrap3"><span class="name">山水30高地咖啡</span><span class="zh">山水30高地咖啡</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%B1%B1%E6%B0%B430%E9%AB%98%E5%9C%B0%E5%92%96%E5%95%A1%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>咖啡／景觀</td><td>下午</td><td class="note">山水一帶休息備選。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%B1%B1%E6%B0%B430%E9%AB%98%E5%9C%B0%E5%92%96%E5%95%A1%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr></tbody></table></div></section><section class="section central" data-section-region="中島"><div class="sticky-group"><h2>湖西 <span class="count">5 家</span></h2><div class="head-wrap"><div class="head-track"><table><colgroup>
+<col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/>
+</colgroup><thead><tr><th>勾選</th><th>項次</th><th>區域</th><th>店家（原文＋中文）</th><th>必吃</th><th>Google</th><th>查看介紹</th><th>美食種類</th><th>適合時間</th><th>備註</th><th>導航</th></tr></thead></table></div></div></div>
+<div class="body-wrap"><table><colgroup><col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/></colgroup><tbody><tr class="food-row" data-id="43" data-rating="" data-region="中島" data-search="湖西小館 湖西小館 湖西村 小管麵線／海鮮 午餐／晚餐 小管麵線、鮮蚵與海鮮小菜。 湖西" data-tier="S" data-type="小管麵線／海鮮">
+<td class="center"><input class="pick" data-id="43" type="checkbox"/></td>
+<td class="center">43</td><td><div class="wrap3">湖西村</div></td>
+<td><div class="wrap3"><span class="name">湖西小館</span><span class="zh">湖西小館</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%B9%96%E8%A5%BF%E5%B0%8F%E9%A4%A8%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>小管麵線／海鮮</td><td>午餐／晚餐</td><td class="note">小管麵線、鮮蚵與海鮮小菜。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%B9%96%E8%A5%BF%E5%B0%8F%E9%A4%A8%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="44" data-rating="" data-region="中島" data-search="旭西餅舖 旭西餅舖 湖西村 炸棗／糕餅 早餐／下午 老字號炸棗；原味、花生、紅豆。 湖西" data-tier="S" data-type="炸棗／糕餅">
+<td class="center"><input class="pick" data-id="44" type="checkbox"/></td>
+<td class="center">44</td><td><div class="wrap3">湖西村</div></td>
+<td><div class="wrap3"><span class="name">旭西餅舖</span><span class="zh">旭西餅舖</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%97%AD%E8%A5%BF%E9%A4%85%E8%88%96%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>炸棗／糕餅</td><td>早餐／下午</td><td class="note">老字號炸棗；原味、花生、紅豆。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%97%AD%E8%A5%BF%E9%A4%85%E8%88%96%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="45" data-rating="" data-region="中島" data-search="老蔡牛肉麵 老蔡牛肉麵 湖西 牛肉麵／麵食 午餐／晚餐 湖西在地牛肉麵。 湖西" data-tier="A" data-type="牛肉麵／麵食">
+<td class="center"><input class="pick" data-id="45" type="checkbox"/></td>
+<td class="center">45</td><td><div class="wrap3">湖西</div></td>
+<td><div class="wrap3"><span class="name">老蔡牛肉麵</span><span class="zh">老蔡牛肉麵</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E8%80%81%E8%94%A1%E7%89%9B%E8%82%89%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>牛肉麵／麵食</td><td>午餐／晚餐</td><td class="note">湖西在地牛肉麵。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E8%80%81%E8%94%A1%E7%89%9B%E8%82%89%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="46" data-rating="" data-region="中島" data-search="湖西炸粿 湖西炸粿 湖西 炸粿／小吃 下午 湖西在地炸粿。 湖西" data-tier="A" data-type="炸粿／小吃">
+<td class="center"><input class="pick" data-id="46" type="checkbox"/></td>
+<td class="center">46</td><td><div class="wrap3">湖西</div></td>
+<td><div class="wrap3"><span class="name">湖西炸粿</span><span class="zh">湖西炸粿</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%B9%96%E8%A5%BF%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>炸粿／小吃</td><td>下午</td><td class="note">湖西在地炸粿。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%B9%96%E8%A5%BF%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="47" data-rating="" data-region="中島" data-search="隘門陽光沙灘俏娘子咖啡 隘門陽光沙灘俏娘子咖啡 隘門 咖啡／輕食 上午／下午 隘門水上活動前後可休息。 湖西" data-tier="B" data-type="咖啡／輕食">
+<td class="center"><input class="pick" data-id="47" type="checkbox"/></td>
+<td class="center">47</td><td><div class="wrap3">隘門</div></td>
+<td><div class="wrap3"><span class="name">隘門陽光沙灘俏娘子咖啡</span><span class="zh">隘門陽光沙灘俏娘子咖啡</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%9A%98%E9%96%80%E9%99%BD%E5%85%89%E6%B2%99%E7%81%98%E4%BF%8F%E5%A8%98%E5%AD%90%E5%92%96%E5%95%A1%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>咖啡／輕食</td><td>上午／下午</td><td class="note">隘門水上活動前後可休息。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%9A%98%E9%96%80%E9%99%BD%E5%85%89%E6%B2%99%E7%81%98%E4%BF%8F%E5%A8%98%E5%AD%90%E5%92%96%E5%95%A1%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr></tbody></table></div></section><section class="section midsouth" data-section-region="中南"><div class="sticky-group"><h2>白沙 <span class="count">4 家</span></h2><div class="head-wrap"><div class="head-track"><table><colgroup>
+<col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/>
+</colgroup><thead><tr><th>勾選</th><th>項次</th><th>區域</th><th>店家（原文＋中文）</th><th>必吃</th><th>Google</th><th>查看介紹</th><th>美食種類</th><th>適合時間</th><th>備註</th><th>導航</th></tr></thead></table></div></div></div>
+<div class="body-wrap"><table><colgroup><col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/></colgroup><tbody><tr class="food-row" data-id="48" data-rating="" data-region="中南" data-search="江巷仔內仙人掌冰 江巷仔內仙人掌冰 通梁 仙人掌冰／飲料 下午 仙人掌冰、風茹茶；跨海大橋順路。 白沙" data-tier="S" data-type="仙人掌冰／飲料">
+<td class="center"><input class="pick" data-id="48" type="checkbox"/></td>
+<td class="center">48</td><td><div class="wrap3">通梁</div></td>
+<td><div class="wrap3"><span class="name">江巷仔內仙人掌冰</span><span class="zh">江巷仔內仙人掌冰</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%B1%9F%E5%B7%B7%E4%BB%94%E5%85%A7%E4%BB%99%E4%BA%BA%E6%8E%8C%E5%86%B0%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>仙人掌冰／飲料</td><td>下午</td><td class="note">仙人掌冰、風茹茶；跨海大橋順路。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%B1%9F%E5%B7%B7%E4%BB%94%E5%85%A7%E4%BB%99%E4%BA%BA%E6%8E%8C%E5%86%B0%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="49" data-rating="" data-region="中南" data-search="講美炸粿 講美炸粿 講美 炸粿／小吃 下午 白沙在地炸粿。 白沙" data-tier="A" data-type="炸粿／小吃">
+<td class="center"><input class="pick" data-id="49" type="checkbox"/></td>
+<td class="center">49</td><td><div class="wrap3">講美</div></td>
+<td><div class="wrap3"><span class="name">講美炸粿</span><span class="zh">講美炸粿</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E8%AC%9B%E7%BE%8E%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>炸粿／小吃</td><td>下午</td><td class="note">白沙在地炸粿。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E8%AC%9B%E7%BE%8E%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="50" data-rating="" data-region="中南" data-search="易家仙人掌冰 易家仙人掌冰 通梁 仙人掌冰／甜點 下午 仙人掌冰、冰品。 白沙" data-tier="A" data-type="仙人掌冰／甜點">
+<td class="center"><input class="pick" data-id="50" type="checkbox"/></td>
+<td class="center">50</td><td><div class="wrap3">通梁</div></td>
+<td><div class="wrap3"><span class="name">易家仙人掌冰</span><span class="zh">易家仙人掌冰</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%98%93%E5%AE%B6%E4%BB%99%E4%BA%BA%E6%8E%8C%E5%86%B0%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>仙人掌冰／甜點</td><td>下午</td><td class="note">仙人掌冰、冰品。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%98%93%E5%AE%B6%E4%BB%99%E4%BA%BA%E6%8E%8C%E5%86%B0%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="51" data-rating="" data-region="中南" data-search="美東芳牛肉麵 美東芳牛肉麵 赤崁 牛肉麵／麵食 午餐／晚餐 白沙正餐備選。 白沙" data-tier="B" data-type="牛肉麵／麵食">
+<td class="center"><input class="pick" data-id="51" type="checkbox"/></td>
+<td class="center">51</td><td><div class="wrap3">赤崁</div></td>
+<td><div class="wrap3"><span class="name">美東芳牛肉麵</span><span class="zh">美東芳牛肉麵</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E7%BE%8E%E6%9D%B1%E8%8A%B3%E7%89%9B%E8%82%89%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>牛肉麵／麵食</td><td>午餐／晚餐</td><td class="note">白沙正餐備選。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E7%BE%8E%E6%9D%B1%E8%8A%B3%E7%89%9B%E8%82%89%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr></tbody></table></div></section><section class="section east" data-section-region="東島"><div class="sticky-group"><h2>西嶼 <span class="count">13 家</span></h2><div class="head-wrap"><div class="head-track"><table><colgroup>
+<col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/>
+</colgroup><thead><tr><th>勾選</th><th>項次</th><th>區域</th><th>店家（原文＋中文）</th><th>必吃</th><th>Google</th><th>查看介紹</th><th>美食種類</th><th>適合時間</th><th>備註</th><th>導航</th></tr></thead></table></div></div></div>
+<div class="body-wrap"><table><colgroup><col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/></colgroup><tbody><tr class="food-row" data-id="52" data-rating="" data-region="東島" data-search="小萍的店 小萍的店 小門 小管麵線／海鮮 午餐 小管絲瓜麵線、小管料理。 西嶼" data-tier="S+" data-type="小管麵線／海鮮">
+<td class="center"><input class="pick" data-id="52" type="checkbox"/></td>
+<td class="center">52</td><td><div class="wrap3">小門</div></td>
+<td><div class="wrap3"><span class="name">小萍的店</span><span class="zh">小萍的店</span></div></td>
+<td class="center tier tier-Splus">S+</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%B0%8F%E8%90%8D%E7%9A%84%E5%BA%97%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>小管麵線／海鮮</td><td>午餐</td><td class="note">小管絲瓜麵線、小管料理。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%B0%8F%E8%90%8D%E7%9A%84%E5%BA%97%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="53" data-rating="" data-region="東島" data-search="秀鳳姐的店 秀鳳姐的店 小門 小管麵線／海鮮 午餐 小管麵線。 西嶼" data-tier="S" data-type="小管麵線／海鮮">
+<td class="center"><input class="pick" data-id="53" type="checkbox"/></td>
+<td class="center">53</td><td><div class="wrap3">小門</div></td>
+<td><div class="wrap3"><span class="name">秀鳳姐的店</span><span class="zh">秀鳳姐的店</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E7%A7%80%E9%B3%B3%E5%A7%90%E7%9A%84%E5%BA%97%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>小管麵線／海鮮</td><td>午餐</td><td class="note">小管麵線。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E7%A7%80%E9%B3%B3%E5%A7%90%E7%9A%84%E5%BA%97%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="54" data-rating="" data-region="東島" data-search="阿枝炸粿 阿枝炸粿 小門 炸粿／小吃 午餐／下午 蝦炸粿、魚炸粿、綜合炸粿。 西嶼" data-tier="S+" data-type="炸粿／小吃">
+<td class="center"><input class="pick" data-id="54" type="checkbox"/></td>
+<td class="center">54</td><td><div class="wrap3">小門</div></td>
+<td><div class="wrap3"><span class="name">阿枝炸粿</span><span class="zh">阿枝炸粿</span></div></td>
+<td class="center tier tier-Splus">S+</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%98%BF%E6%9E%9D%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>炸粿／小吃</td><td>午餐／下午</td><td class="note">蝦炸粿、魚炸粿、綜合炸粿。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%98%BF%E6%9E%9D%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="55" data-rating="" data-region="東島" data-search="大池炸粿＆鯊魚排 大池炸粿＆鯊魚排 大池 炸粿／炸物 午餐／下午 炸粿、鯊魚排。 西嶼" data-tier="S+" data-type="炸粿／炸物">
+<td class="center"><input class="pick" data-id="55" type="checkbox"/></td>
+<td class="center">55</td><td><div class="wrap3">大池</div></td>
+<td><div class="wrap3"><span class="name">大池炸粿＆鯊魚排</span><span class="zh">大池炸粿＆鯊魚排</span></div></td>
+<td class="center tier tier-Splus">S+</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%A4%A7%E6%B1%A0%E7%82%B8%E7%B2%BF%EF%BC%86%E9%AF%8A%E9%AD%9A%E6%8E%92%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>炸粿／炸物</td><td>午餐／下午</td><td class="note">炸粿、鯊魚排。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%A4%A7%E6%B1%A0%E7%82%B8%E7%B2%BF%EF%BC%86%E9%AF%8A%E9%AD%9A%E6%8E%92%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="56" data-rating="" data-region="東島" data-search="外垵刈包・福氣早餐店 外垵刈包・福氣早餐店 外垵 早餐／刈包 早餐 黑糖饅頭夾焢肉與蛋。 西嶼" data-tier="S" data-type="早餐／刈包">
+<td class="center"><input class="pick" data-id="56" type="checkbox"/></td>
+<td class="center">56</td><td><div class="wrap3">外垵</div></td>
+<td><div class="wrap3"><span class="name">外垵刈包・福氣早餐店</span><span class="zh">外垵刈包・福氣早餐店</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%A4%96%E5%9E%B5%E5%88%88%E5%8C%85%E3%83%BB%E7%A6%8F%E6%B0%A3%E6%97%A9%E9%A4%90%E5%BA%97%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>早餐／刈包</td><td>早餐</td><td class="note">黑糖饅頭夾焢肉與蛋。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%A4%96%E5%9E%B5%E5%88%88%E5%8C%85%E3%83%BB%E7%A6%8F%E6%B0%A3%E6%97%A9%E9%A4%90%E5%BA%97%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="57" data-rating="" data-region="東島" data-search="阿挺海鮮 阿挺海鮮 西嶼 海鮮料理 午餐／晚餐 西嶼海鮮料理。 西嶼" data-tier="A" data-type="海鮮料理">
+<td class="center"><input class="pick" data-id="57" type="checkbox"/></td>
+<td class="center">57</td><td><div class="wrap3">西嶼</div></td>
+<td><div class="wrap3"><span class="name">阿挺海鮮</span><span class="zh">阿挺海鮮</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%98%BF%E6%8C%BA%E6%B5%B7%E9%AE%AE%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>海鮮料理</td><td>午餐／晚餐</td><td class="note">西嶼海鮮料理。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%98%BF%E6%8C%BA%E6%B5%B7%E9%AE%AE%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="58" data-rating="" data-region="東島" data-search="二馬豆花 二馬豆花 西嶼 豆花／甜點 下午 豆花甜品。 西嶼" data-tier="A" data-type="豆花／甜點">
+<td class="center"><input class="pick" data-id="58" type="checkbox"/></td>
+<td class="center">58</td><td><div class="wrap3">西嶼</div></td>
+<td><div class="wrap3"><span class="name">二馬豆花</span><span class="zh">二馬豆花</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E4%BA%8C%E9%A6%AC%E8%B1%86%E8%8A%B1%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>豆花／甜點</td><td>下午</td><td class="note">豆花甜品。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E4%BA%8C%E9%A6%AC%E8%B1%86%E8%8A%B1%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="59" data-rating="" data-region="東島" data-search="鳥來伯土豆仁粿 鳥來伯土豆仁粿 西嶼 土豆仁粿／甜點 下午 澎湖古早味土豆仁粿。 西嶼" data-tier="A" data-type="土豆仁粿／甜點">
+<td class="center"><input class="pick" data-id="59" type="checkbox"/></td>
+<td class="center">59</td><td><div class="wrap3">西嶼</div></td>
+<td><div class="wrap3"><span class="name">鳥來伯土豆仁粿</span><span class="zh">鳥來伯土豆仁粿</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%B3%A5%E4%BE%86%E4%BC%AF%E5%9C%9F%E8%B1%86%E4%BB%81%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>土豆仁粿／甜點</td><td>下午</td><td class="note">澎湖古早味土豆仁粿。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%B3%A5%E4%BE%86%E4%BC%AF%E5%9C%9F%E8%B1%86%E4%BB%81%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="60" data-rating="" data-region="東島" data-search="外垵滿拿炸粿 外垵滿拿炸粿 外垵 炸粿／小吃 下午 外垵炸粿。 西嶼" data-tier="A" data-type="炸粿／小吃">
+<td class="center"><input class="pick" data-id="60" type="checkbox"/></td>
+<td class="center">60</td><td><div class="wrap3">外垵</div></td>
+<td><div class="wrap3"><span class="name">外垵滿拿炸粿</span><span class="zh">外垵滿拿炸粿</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%A4%96%E5%9E%B5%E6%BB%BF%E6%8B%BF%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>炸粿／小吃</td><td>下午</td><td class="note">外垵炸粿。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%A4%96%E5%9E%B5%E6%BB%BF%E6%8B%BF%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="61" data-rating="" data-region="東島" data-search="阿綢炸粿 阿綢炸粿 外垵 炸粿／小吃 下午 西嶼炸粿。 西嶼" data-tier="A" data-type="炸粿／小吃">
+<td class="center"><input class="pick" data-id="61" type="checkbox"/></td>
+<td class="center">61</td><td><div class="wrap3">外垵</div></td>
+<td><div class="wrap3"><span class="name">阿綢炸粿</span><span class="zh">阿綢炸粿</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%98%BF%E7%B6%A2%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>炸粿／小吃</td><td>下午</td><td class="note">西嶼炸粿。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%98%BF%E7%B6%A2%E7%82%B8%E7%B2%BF%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="62" data-rating="" data-region="東島" data-search="陳家仙人掌汁 陳家仙人掌汁 西嶼 仙人掌汁／飲料 下午 仙人掌飲品。 西嶼" data-tier="A" data-type="仙人掌汁／飲料">
+<td class="center"><input class="pick" data-id="62" type="checkbox"/></td>
+<td class="center">62</td><td><div class="wrap3">西嶼</div></td>
+<td><div class="wrap3"><span class="name">陳家仙人掌汁</span><span class="zh">陳家仙人掌汁</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E9%99%B3%E5%AE%B6%E4%BB%99%E4%BA%BA%E6%8E%8C%E6%B1%81%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>仙人掌汁／飲料</td><td>下午</td><td class="note">仙人掌飲品。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E9%99%B3%E5%AE%B6%E4%BB%99%E4%BA%BA%E6%8E%8C%E6%B1%81%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="63" data-rating="" data-region="東島" data-search="二崁杏仁茶 二崁杏仁茶 二崁 杏仁茶／甜點 下午 二崁聚落散步補給。 西嶼" data-tier="A" data-type="杏仁茶／甜點">
+<td class="center"><input class="pick" data-id="63" type="checkbox"/></td>
+<td class="center">63</td><td><div class="wrap3">二崁</div></td>
+<td><div class="wrap3"><span class="name">二崁杏仁茶</span><span class="zh">二崁杏仁茶</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E4%BA%8C%E5%B4%81%E6%9D%8F%E4%BB%81%E8%8C%B6%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>杏仁茶／甜點</td><td>下午</td><td class="note">二崁聚落散步補給。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E4%BA%8C%E5%B4%81%E6%9D%8F%E4%BB%81%E8%8C%B6%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="64" data-rating="" data-region="東島" data-search="二崁傳香 二崁傳香 二崁 古早味／伴手禮 下午 二崁聚落特色小點。 西嶼" data-tier="A" data-type="古早味／伴手禮">
+<td class="center"><input class="pick" data-id="64" type="checkbox"/></td>
+<td class="center">64</td><td><div class="wrap3">二崁</div></td>
+<td><div class="wrap3"><span class="name">二崁傳香</span><span class="zh">二崁傳香</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E4%BA%8C%E5%B4%81%E5%82%B3%E9%A6%99%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>古早味／伴手禮</td><td>下午</td><td class="note">二崁聚落特色小點。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E4%BA%8C%E5%B4%81%E5%82%B3%E9%A6%99%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr></tbody></table></div></section><section class="section south" data-section-region="南島"><div class="sticky-group"><h2>離島／伴手禮 <span class="count">9 家</span></h2><div class="head-wrap"><div class="head-track"><table><colgroup>
+<col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/>
+</colgroup><thead><tr><th>勾選</th><th>項次</th><th>區域</th><th>店家（原文＋中文）</th><th>必吃</th><th>Google</th><th>查看介紹</th><th>美食種類</th><th>適合時間</th><th>備註</th><th>導航</th></tr></thead></table></div></div></div>
+<div class="body-wrap"><table><colgroup><col class="c1"/><col class="c2"/><col class="c3"/><col class="c4"/><col class="c5"/><col class="c6"/><col class="c7"/><col class="c8"/><col class="c9"/><col class="c10"/><col class="c11"/></colgroup><tbody><tr class="food-row" data-id="65" data-rating="" data-region="南島" data-search="七美芳子肉粽 七美芳子肉粽 七美 肉粽／麵食 早餐／午餐 七美港附近人氣肉粽。 離島／伴手禮" data-tier="S" data-type="肉粽／麵食">
+<td class="center"><input class="pick" data-id="65" type="checkbox"/></td>
+<td class="center">65</td><td><div class="wrap3">七美</div></td>
+<td><div class="wrap3"><span class="name">七美芳子肉粽</span><span class="zh">七美芳子肉粽</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E4%B8%83%E7%BE%8E%E8%8A%B3%E5%AD%90%E8%82%89%E7%B2%BD%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>肉粽／麵食</td><td>早餐／午餐</td><td class="note">七美港附近人氣肉粽。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E4%B8%83%E7%BE%8E%E8%8A%B3%E5%AD%90%E8%82%89%E7%B2%BD%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="66" data-rating="" data-region="南島" data-search="七美潮州麵 七美潮州麵 七美 麵食／小吃 午餐 七美在地麵食。 離島／伴手禮" data-tier="B" data-type="麵食／小吃">
+<td class="center"><input class="pick" data-id="66" type="checkbox"/></td>
+<td class="center">66</td><td><div class="wrap3">七美</div></td>
+<td><div class="wrap3"><span class="name">七美潮州麵</span><span class="zh">七美潮州麵</span></div></td>
+<td class="center tier tier-B">B</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E4%B8%83%E7%BE%8E%E6%BD%AE%E5%B7%9E%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>麵食／小吃</td><td>午餐</td><td class="note">七美在地麵食。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E4%B8%83%E7%BE%8E%E6%BD%AE%E5%B7%9E%E9%BA%B5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="67" data-rating="" data-region="南島" data-search="春仁黑糖糕 春仁黑糖糕 馬公 黑糖糕／伴手禮 全天 澎湖經典黑糖糕。 離島／伴手禮" data-tier="S" data-type="黑糖糕／伴手禮">
+<td class="center"><input class="pick" data-id="67" type="checkbox"/></td>
+<td class="center">67</td><td><div class="wrap3">馬公</div></td>
+<td><div class="wrap3"><span class="name">春仁黑糖糕</span><span class="zh">春仁黑糖糕</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%98%A5%E4%BB%81%E9%BB%91%E7%B3%96%E7%B3%95%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>黑糖糕／伴手禮</td><td>全天</td><td class="note">澎湖經典黑糖糕。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%98%A5%E4%BB%81%E9%BB%91%E7%B3%96%E7%B3%95%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="68" data-rating="" data-region="南島" data-search="水月堂黑糖糕 水月堂黑糖糕 馬公 黑糖糕／伴手禮 全天 黑糖糕伴手禮。 離島／伴手禮" data-tier="A" data-type="黑糖糕／伴手禮">
+<td class="center"><input class="pick" data-id="68" type="checkbox"/></td>
+<td class="center">68</td><td><div class="wrap3">馬公</div></td>
+<td><div class="wrap3"><span class="name">水月堂黑糖糕</span><span class="zh">水月堂黑糖糕</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%B0%B4%E6%9C%88%E5%A0%82%E9%BB%91%E7%B3%96%E7%B3%95%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>黑糖糕／伴手禮</td><td>全天</td><td class="note">黑糖糕伴手禮。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%B0%B4%E6%9C%88%E5%A0%82%E9%BB%91%E7%B3%96%E7%B3%95%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="69" data-rating="" data-region="南島" data-search="媽宮食品 媽宮食品 馬公 糕餅／海味伴手禮 全天 黑糖糕、鹹餅、海味等。 離島／伴手禮" data-tier="S" data-type="糕餅／海味伴手禮">
+<td class="center"><input class="pick" data-id="69" type="checkbox"/></td>
+<td class="center">69</td><td><div class="wrap3">馬公</div></td>
+<td><div class="wrap3"><span class="name">媽宮食品</span><span class="zh">媽宮食品</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%AA%BD%E5%AE%AE%E9%A3%9F%E5%93%81%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>糕餅／海味伴手禮</td><td>全天</td><td class="note">黑糖糕、鹹餅、海味等。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%AA%BD%E5%AE%AE%E9%A3%9F%E5%93%81%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="70" data-rating="" data-region="南島" data-search="盛興製餅 盛興製餅 馬公 糕餅／伴手禮 全天 老字號澎湖糕餅。 離島／伴手禮" data-tier="S" data-type="糕餅／伴手禮">
+<td class="center"><input class="pick" data-id="70" type="checkbox"/></td>
+<td class="center">70</td><td><div class="wrap3">馬公</div></td>
+<td><div class="wrap3"><span class="name">盛興製餅</span><span class="zh">盛興製餅</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E7%9B%9B%E8%88%88%E8%A3%BD%E9%A4%85%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>糕餅／伴手禮</td><td>全天</td><td class="note">老字號澎湖糕餅。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E7%9B%9B%E8%88%88%E8%A3%BD%E9%A4%85%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="71" data-rating="" data-region="南島" data-search="泉利餅舖 泉利餅舖 馬公 糕餅／伴手禮 全天 傳統糕餅伴手禮。 離島／伴手禮" data-tier="A" data-type="糕餅／伴手禮">
+<td class="center"><input class="pick" data-id="71" type="checkbox"/></td>
+<td class="center">71</td><td><div class="wrap3">馬公</div></td>
+<td><div class="wrap3"><span class="name">泉利餅舖</span><span class="zh">泉利餅舖</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%B3%89%E5%88%A9%E9%A4%85%E8%88%96%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>糕餅／伴手禮</td><td>全天</td><td class="note">傳統糕餅伴手禮。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%B3%89%E5%88%A9%E9%A4%85%E8%88%96%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="72" data-rating="" data-region="南島" data-search="正一花生酥 正一花生酥 馬公 花生酥／伴手禮 全天 澎湖代表性花生酥。 離島／伴手禮" data-tier="S" data-type="花生酥／伴手禮">
+<td class="center"><input class="pick" data-id="72" type="checkbox"/></td>
+<td class="center">72</td><td><div class="wrap3">馬公</div></td>
+<td><div class="wrap3"><span class="name">正一花生酥</span><span class="zh">正一花生酥</span></div></td>
+<td class="center tier tier-S">S</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E6%AD%A3%E4%B8%80%E8%8A%B1%E7%94%9F%E9%85%A5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>花生酥／伴手禮</td><td>全天</td><td class="note">澎湖代表性花生酥。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%AD%A3%E4%B8%80%E8%8A%B1%E7%94%9F%E9%85%A5%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr><tr class="food-row" data-id="73" data-rating="" data-region="南島" data-search="御品家食品 御品家食品 馬公 黑糖糕／伴手禮 全天 多樣澎湖伴手禮。 離島／伴手禮" data-tier="A" data-type="黑糖糕／伴手禮">
+<td class="center"><input class="pick" data-id="73" type="checkbox"/></td>
+<td class="center">73</td><td><div class="wrap3">馬公</div></td>
+<td><div class="wrap3"><span class="name">御品家食品</span><span class="zh">御品家食品</span></div></td>
+<td class="center tier tier-A">A</td>
+<td><span class="no-rating">即時查看</span></td>
+<td><a class="google" href="https://www.google.com/search?q=%E5%BE%A1%E5%93%81%E5%AE%B6%E9%A3%9F%E5%93%81%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">Google 搜尋</a></td>
+<td>黑糖糕／伴手禮</td><td>全天</td><td class="note">多樣澎湖伴手禮。</td>
+<td><a class="mapnav" href="https://www.google.com/maps/search/?api=1&amp;query=%E5%BE%A1%E5%93%81%E5%AE%B6%E9%A3%9F%E5%93%81%20%E6%BE%8E%E6%B9%96" rel="noopener" target="_blank">導航</a></td></tr></tbody></table></div></section></main>
+<div class="small" style="text-align:center;padding:16px">研究版 2.9｜V29｜更新日期 2026-09-05</div>
+</div>
+<button id="backTop" title="回到最上面">↑</button>
+<script>
+(function(){
+"use strict";
+const selectedTypes=new Set(),selectedTiers=new Set(),selectedRatings=new Set(),selectedIds=new Set();
+let activeRegion="全部";
+const KEY="phuQuocFoodListV1:";
+const SAVED_KEY=KEY+"savedProfiles";
+const rows=[...document.querySelectorAll(".food-row")];
+const sections=[...document.querySelectorAll("[data-section-region]")];
+const $=s=>document.querySelector(s);
+
+
+function getSavedProfiles(){
+  try{return JSON.parse(localStorage.getItem(SAVED_KEY)||"[]").filter(Boolean);}
+  catch(e){return [];}
+}
+function saveProfileName(name){
+  const names=getSavedProfiles();
+  if(!names.includes(name))names.push(name);
+  localStorage.setItem(SAVED_KEY,JSON.stringify(names));
+  refreshSavedProfiles(name);
+}
+function refreshSavedProfiles(selectName){
+  const sel=$("#savedProfiles");
+  const names=getSavedProfiles();
+  sel.innerHTML='<option value="">已儲存清單</option>'+names.map(n=>`<option value="${n.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}">${n}</option>`).join("");
+  if(selectName && names.includes(selectName))sel.value=selectName;
+}
+
+function updateButton(id,label,set){
+  const b=document.querySelector(`[data-menu="${id}"]`);
+  if(b)b.textContent=set.size?`${label}：已選 ${set.size}`:`${label}：全部`;
+}
+function applyFilters(){
+  document.body.classList.toggle("all-regions",activeRegion==="全部");
+  const q=($("#search").value||"").trim().toLowerCase();
+  rows.forEach(row=>{
+    const region=row.dataset.region;
+    const type=row.dataset.type;
+    const tier=row.dataset.tier;
+    const rating=row.dataset.rating===""?null:Number(row.dataset.rating);
+    let show=activeRegion==="全部"||region===activeRegion;
+    if(show&&selectedTypes.size)show=selectedTypes.has(type);
+    if(show&&selectedTiers.size)show=selectedTiers.has(tier);
+    if(show&&selectedRatings.size){
+      show=[...selectedRatings].some(r=>
+        (r==="有評分"&&rating!==null)||
+        (r==="查無評論"&&rating===null)||
+        (!Number.isNaN(Number(r))&&rating!==null&&rating>=Number(r))
+      );
+    }
+    if(show&&q)show=(row.dataset.search||"").includes(q);
+    row.classList.toggle("hidden",!show);
+  });
+  sections.forEach(sec=>{
+    const visible=sec.querySelectorAll(".food-row:not(.hidden)").length;
+    sec.classList.toggle("hidden",visible===0);
+    const c=sec.querySelector(".count"); if(c)c.textContent=visible+" 家";
+  });
+}
+function syncHeaders(){
+  sections.forEach(sec=>{
+    const wrap=sec.querySelector(".body-wrap"),track=sec.querySelector(".head-track");
+    if(!wrap||!track)return;
+    const sync=()=>track.style.transform=`translateX(${-wrap.scrollLeft}px)`;
+    wrap.addEventListener("scroll",sync,{passive:true});sync();
+  });
+}
+function renderMine(){
+  const mine=rows.filter(r=>selectedIds.has(Number(r.dataset.id)));
+  if(!mine.length){$("#myList").innerHTML='<p class="small">尚未勾選店家。</p>';return;}
+  const cloned=mine.map(r=>r.outerHTML).join("");
+  $("#myList").innerHTML=`<div class="body-wrap"><table><colgroup>
+<col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5">
+<col class="c6"><col class="c7"><col class="c8"><col class="c9"><col class="c10"><col class="c11">
+</colgroup><tbody>${cloned}</tbody></table></div>`;
+  $("#myList").querySelectorAll(".pick").forEach(c=>{
+    c.checked=true;
+    c.addEventListener("change",()=>{selectedIds.delete(Number(c.dataset.id));syncChecks();renderMine();});
+  });
+}
+function syncChecks(){
+  document.querySelectorAll(".pick").forEach(c=>{
+    const on=selectedIds.has(Number(c.dataset.id));
+    c.checked=on;
+    const tr=c.closest("tr");if(tr)tr.classList.toggle("chosen",on);
+  });
+}
+document.querySelectorAll(".pick").forEach(c=>c.addEventListener("change",()=>{
+  const id=Number(c.dataset.id);
+  c.checked?selectedIds.add(id):selectedIds.delete(id);
+  syncChecks();renderMine();
+}));
+document.querySelectorAll("[data-region-filter]").forEach(b=>b.addEventListener("click",()=>{
+  activeRegion=b.dataset.regionFilter;
+  document.querySelectorAll("[data-region-filter]").forEach(x=>x.classList.toggle("active",x===b));
+  applyFilters();
+}));
+[
+  ["typeMenu",selectedTypes,"類型"],["tierMenu",selectedTiers,"必吃"],["ratingMenu",selectedRatings,"Google"]
+].forEach(([id,set,label])=>{
+  document.querySelectorAll("#"+id+' input[type="checkbox"]').forEach(cb=>cb.addEventListener("change",()=>{
+    cb.checked?set.add(cb.value):set.delete(cb.value);
+    updateButton(id,label,set);applyFilters();
+  }));
+});
+document.querySelectorAll("[data-menu]").forEach(b=>b.addEventListener("click",e=>{
+  e.stopPropagation();const menu=$("#"+b.dataset.menu);
+  document.querySelectorAll(".menu").forEach(m=>m!==menu&&m.classList.remove("open"));
+  menu.classList.toggle("open");
+}));
+document.querySelectorAll(".menu").forEach(m=>m.addEventListener("click",e=>e.stopPropagation()));
+document.addEventListener("click",()=>document.querySelectorAll(".menu").forEach(m=>m.classList.remove("open")));
+$("#search").addEventListener("input",applyFilters);
+$("#reset").addEventListener("click",()=>{
+  activeRegion="全部";selectedTypes.clear();selectedTiers.clear();selectedRatings.clear();$("#search").value="";
+  document.querySelectorAll('.menu input[type="checkbox"]').forEach(c=>c.checked=false);
+  document.querySelectorAll("[data-region-filter]").forEach(b=>b.classList.toggle("active",b.dataset.regionFilter==="全部"));
+  updateButton("typeMenu","類型",selectedTypes);updateButton("tierMenu","必吃",selectedTiers);updateButton("ratingMenu","Google",selectedRatings);applyFilters();
+});
+$("#saveMine").addEventListener("click",()=>{
+  const p=$("#profile").value.trim();if(!p)return alert("請輸入清單名稱");
+  localStorage.setItem(KEY+p,JSON.stringify([...selectedIds]));
+  localStorage.setItem(KEY+"lastProfile",p);
+  saveProfileName(p);
+  alert("已儲存："+p);
+});
+$("#loadMine").addEventListener("click",()=>{
+  const p=($("#savedProfiles").value||$("#profile").value).trim();
+  if(!p)return alert("請選擇或輸入清單名稱");
+  $("#profile").value=p;
+  selectedIds.clear();
+  JSON.parse(localStorage.getItem(KEY+p)||"[]").forEach(id=>selectedIds.add(Number(id)));
+  localStorage.setItem(KEY+"lastProfile",p);
+  syncChecks();renderMine();
+});
+$("#clearMine").addEventListener("click",()=>{selectedIds.clear();syncChecks();renderMine();});
+$("#copyMine").addEventListener("click",async()=>{
+  const lines=rows.filter(r=>selectedIds.has(Number(r.dataset.id))).map(r=>{
+    const id=r.dataset.id;
+    const cells=r.children;
+    return `${id}. ${cells[3].innerText.trim()}｜${cells[4].innerText.trim()}｜${cells[5].innerText.trim()}`;
+  });
+  if(!lines.length)return alert("目前沒有勾選店家");
+  try{await navigator.clipboard.writeText(lines.join("\n"));alert("已複製我的清單");}
+  catch(e){alert("瀏覽器無法自動複製，請改用手動選取。");}
+});
+$("#savedProfiles").addEventListener("change",()=>{
+  const v=$("#savedProfiles").value;
+  if(v)$("#profile").value=v;
+});
+refreshSavedProfiles();
+const last=localStorage.getItem(KEY+"lastProfile");
+if(last){
+  $("#profile").value=last;
+  refreshSavedProfiles(last);
+}
+const bt=$("#backTop");window.addEventListener("scroll",()=>bt.classList.toggle("show",window.scrollY>500),{passive:true});bt.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
+syncHeaders();applyFilters();syncChecks();renderMine();
+})();
+</script>
+</body>
+</html>
